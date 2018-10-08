@@ -10,6 +10,7 @@ db.close()
 
 x = range(1,2838)
 
-fig = plt.figure(figsize=(30,15),dpi=40)
+# fig = plt.figure(figsize=(30,15),dpi=40)
 plt.plot(x,result)
+plt.xticks(range(1,2838,100))
 plt.show()
