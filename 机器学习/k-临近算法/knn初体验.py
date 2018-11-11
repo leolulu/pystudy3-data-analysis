@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 
 
 def knncls():
-    status = pd.read_csv(r'E:\Python\PycharmProjects\pystudy3-data-analysis\机器学习\k-临近算法\status_predict.csv', engine='python')
+    status = pd.read_csv(r'E:\python\pystudy3-data-analysis\机器学习\k-临近算法\status_predict.csv', engine='python')
     status.columns = ["PRICE", "CUSTOMBANLANCE", "CUSTOMERBANLANCE", "STATUS"]
     status.drop_duplicates(inplace=True)
 
