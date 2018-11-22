@@ -1,6 +1,8 @@
 .DS_Store
 node_modules
 /dist
+*/events
+
 
 # local env files
 .env.local

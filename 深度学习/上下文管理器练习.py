@@ -9,7 +9,7 @@ class Baseclass:
         )
 
     def err_func(self):
-        num = 1/0
+        1/0
 
 
 class ContextManager:
