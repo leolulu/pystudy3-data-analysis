@@ -1,12 +1,12 @@
 import tensorflow as tf
 
 with tf.variable_scope('prepare_data'):
-    x = tf.random_normal((100, 1), 1.75, 30, name='x')
-    y = tf.matmul(x, [[10.0]]) + 20.0
+    x = tf.random_normal((100, 3), mean=1.75, stddev=30, name='x')
+    y = tf.matmul(x, [[10.0], [20.0], [30.0]]) + 20.0
 
 with tf.variable_scope('modeling'):
-    weight = tf.Variable(tf.random_normal((1, 1), -50, 1), name='weight')
-    bias = tf.Variable(-1000.0, name='bias')
+    weight = tf.Variable(tf.random_normal((3, 1), mean=5.0, stddev=5.0), name='weight')
+    bias = tf.Variable(0.0, name='bias')
     y_predict = tf.matmul(x, weight) + bias
 
 with tf.variable_scope('loss_calc'):
@@ -27,10 +27,10 @@ with tf.Session() as sess:
 
     filewriter = tf.summary.FileWriter('./events', graph=sess.graph)
 
-    for i in range(10000):
+    for i in range(1500):
         sess.run(train_op)
         summary = sess.run(merge)
         filewriter.add_summary(summary, i)
 
-        print('第{}次优化后的weight和bias为'.format(i), weight.eval(), sess.run(bias))
+        print('第{}次优化后的weight和bias为'.format(i), weight.eval().flatten(), sess.run(bias))
         # tf.summary.FileWriter('./events', graph=sess.graph)
