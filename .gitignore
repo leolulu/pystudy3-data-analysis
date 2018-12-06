@@ -2,6 +2,7 @@
 node_modules
 /dist
 */events
+venv
 
 
 # local env files

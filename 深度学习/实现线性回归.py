@@ -15,6 +15,11 @@ with tf.variable_scope('loss_calc'):
 with tf.variable_scope('sgd'):
     train_op = tf.train.GradientDescentOptimizer(0.001).minimize(loss)
 
+tf.summary.scalar('loss', loss)
+tf.summary.histogram('weight', weight)
+tf.summary.histogram('bias', bias)
+merge = tf.summary.merge_all()
+
 init = tf.global_variables_initializer()
 with tf.Session() as sess:
     sess.run(init)
@@ -22,7 +27,10 @@ with tf.Session() as sess:
 
     filewriter = tf.summary.FileWriter('./events', graph=sess.graph)
 
-    for i in range(30000):
+    for i in range(10000):
         sess.run(train_op)
+        summary = sess.run(merge)
+        filewriter.add_summary(summary, i)
+
         print('第{}次优化后的weight和bias为'.format(i), weight.eval(), sess.run(bias))
         # tf.summary.FileWriter('./events', graph=sess.graph)
