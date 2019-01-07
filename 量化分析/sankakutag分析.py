@@ -4,6 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from retrying import retry
 import pymysql
 import threading
+import pandas as pd
 
 header = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
@@ -17,7 +18,7 @@ lock = threading.Lock()
 
 
 @retry(wait_exponential_multiplier=1000, wait_exponential_max=60000)
-def parse(i):
+def parse_mysql(i):
     try:
         url = 'https://chan.sankakucomplex.com/post/show/{}'.format(7446472-i)
 
@@ -44,12 +45,40 @@ def parse(i):
         raise
 
 
-db = pymysql.connect('132.232.0.240', 'yxy', 'test', 'mydb')
-cursor = db.cursor()
+@retry(wait_exponential_multiplier=1000, wait_exponential_max=60000)
+def parse_csv(i):
+    img_id = 7446472-i
+    try:
+        url = 'https://chan.sankakucomplex.com/post/show/{}'.format(img_id)
 
-with ThreadPoolExecutor(max_workers=16) as excutor:
+        r = requests.get(url, headers=header, proxies=proxies)
+        if r.status_code == 429:
+            raise Exception('返回429')
+
+        with lock:
+            tag_list = etree.HTML(r.content).xpath("//ul[@id='tag-sidebar']/li/a/text()")
+            tag_list = str(tag_list)
+            rating = etree.HTML(r.content).xpath("//div[@id='stats']/ul/li[last()]/text()")
+            rating = rating[0].split(':')[-1]
+
+            df = pd.DataFrame({
+                'img_id': [img_id],
+                'tag_list': [tag_list],
+                'rating': [rating]
+            })
+            df.to_csv('./sankaku数据.csv', encoding='utf-8', mode='a', index=False, header=False)
+            print(i, '存入成功')
+    except Exception as e:
+        print(i, e, 'WTF')
+        raise
+
+
+# db = pymysql.connect('132.232.0.240', 'yxy', 'test', 'mydb')
+# cursor = db.cursor()
+
+with ThreadPoolExecutor(max_workers=12) as excutor:
     for i in range(1000):
-        excutor.submit(parse, i)
+        excutor.submit(parse_csv, i)
 
 
-db.close()
+# db.close()
