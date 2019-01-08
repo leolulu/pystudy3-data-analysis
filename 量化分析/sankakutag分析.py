@@ -5,6 +5,7 @@ from retrying import retry
 import pymysql
 import threading
 import pandas as pd
+import time
 
 header = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
@@ -17,41 +18,48 @@ proxies = {
 lock = threading.Lock()
 
 
-@retry(wait_exponential_multiplier=1000, wait_exponential_max=60000)
-def parse_mysql(i):
-    try:
-        url = 'https://chan.sankakucomplex.com/post/show/{}'.format(7446472-i)
-
-        r = requests.get(url, headers=header, proxies=proxies)
-        if r.status_code == 429:
-            raise Exception('返回429')
-
-        with lock:
-            tag_list = etree.HTML(r.content).xpath("//ul[@id='tag-sidebar']/li/a/text()")
-            tag_list = str(tag_list)
-            rating = etree.HTML(r.content).xpath("//div[@id='stats']/ul/li[last()]/text()")
-            rating = rating[0].split(':')[-1]
-
-            sql = 'insert into sankaku(tag_list,rating) values(%s,%s)'
-
-            try:
-                cursor.execute(sql, (tag_list, rating))
-                db.commit()
-                print(i)
-            except Exception as e:
-                db.rollback()
-    except Exception as e:
-        print(i, e, 'WTF')
-        raise
+# def getProxyId():
+#     return requests.get('http://123.207.35.36:5010/get').text
 
 
-@retry(wait_exponential_multiplier=1000, wait_exponential_max=60000)
+# @retry(wait_exponential_multiplier=1000, wait_exponential_max=60000)
+# def parse_mysql(i):
+#     try:
+#         url = 'https://chan.sankakucomplex.com/post/show/{}'.format(7435472-i)
+
+#         r = requests.get(url, headers=header, proxies=proxies)
+#         if r.status_code == 429:
+#             raise Exception('返回429')
+
+#         with lock:
+#             tag_list = etree.HTML(r.content).xpath("//ul[@id='tag-sidebar']/li/a/text()")
+#             tag_list = str(tag_list)
+#             rating = etree.HTML(r.content).xpath("//div[@id='stats']/ul/li[last()]/text()")
+#             rating = rating[0].split(':')[-1]
+
+#             sql = 'insert into sankaku(tag_list,rating) values(%s,%s)'
+
+#             try:
+#                 cursor.execute(sql, (tag_list, rating))
+#                 db.commit()
+#                 print(i)
+#             except Exception as e:
+#                 db.rollback()
+#     except Exception as e:
+#         print(i, e, 'WTF')
+#         raise
+
+
+@retry(wait_exponential_multiplier=1000, wait_exponential_max=60000, stop_max_attempt_number=10)
 def parse_csv(i):
     img_id = 7446472-i
     try:
         url = 'https://chan.sankakucomplex.com/post/show/{}'.format(img_id)
+        if int(time.time()) % 2 == 0:
+            r = requests.get(url, headers=header, proxies=proxies)
+        else:
+            r = requests.get(url, headers=header)
 
-        r = requests.get(url, headers=header, proxies=proxies)
         if r.status_code == 429:
             raise Exception('返回429')
 
@@ -76,7 +84,7 @@ def parse_csv(i):
 # db = pymysql.connect('132.232.0.240', 'yxy', 'test', 'mydb')
 # cursor = db.cursor()
 
-with ThreadPoolExecutor(max_workers=12) as excutor:
+with ThreadPoolExecutor(max_workers=8) as excutor:
     for i in range(1000):
         excutor.submit(parse_csv, i)
 
