@@ -52,7 +52,7 @@ lock = threading.Lock()
 
 @retry(wait_exponential_multiplier=1000, wait_exponential_max=60000, stop_max_attempt_number=10)
 def parse_csv(i):
-    img_id = 7446472-i
+    img_id = 7450761-i
     try:
         url = 'https://chan.sankakucomplex.com/post/show/{}'.format(img_id)
         if int(time.time()) % 2 == 0:
@@ -84,8 +84,8 @@ def parse_csv(i):
 # db = pymysql.connect('132.232.0.240', 'yxy', 'test', 'mydb')
 # cursor = db.cursor()
 
-with ThreadPoolExecutor(max_workers=8) as excutor:
-    for i in range(1000):
+with ThreadPoolExecutor(max_workers=12) as excutor:
+    for i in range(7450760):
         excutor.submit(parse_csv, i)
 
 
