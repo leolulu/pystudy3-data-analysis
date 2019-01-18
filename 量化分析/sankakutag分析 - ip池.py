@@ -15,12 +15,30 @@ header = {
 
 lock = threading.Lock()
 
-def getProxyId():
-    return requests.get('http://123.207.35.36:5010/get').text
 
-@retry(wait_fixed=2000, stop_max_attempt_number=10)
+def saveToCsv(df, i):
+    df.to_csv('./sankaku数据.csv', encoding='utf-8', mode='a', index=False, header=False)
+    print(i, '存入成功')
+
+
+def saveToDb(img_id, tag_list, rating, i):
+    sql = 'insert into sankaku(img_id,tag_list,rating) values(%s,%s,%s)'
+    try:
+        cursor.execute(sql, (img_id, tag_list, rating))
+        db.commit()
+        print(i, '存入成功')
+    except Exception as e:
+        db.rollback()
+        print(e, '存入失败')
+
+
+def getProxyId():
+    return requests.get('http://127.0.0.1:5010/get').text
+
+
+@retry(wait_fixed=5000, stop_max_attempt_number=2)
 def parse_csv(i):
-    img_id = 7450761-i
+    img_id = 7472337-i
     try:
         url = 'https://chan.sankakucomplex.com/post/show/{}'.format(img_id)
         ip = getProxyId()
@@ -29,9 +47,7 @@ def parse_csv(i):
             'https': ip
         }
 
-        print(proxies)
-
-        r = requests.get(url, headers=header, proxies=proxies)
+        r = requests.get(url, headers=header, proxies=proxies, timeout=9)
 
         if r.status_code == 429:
             raise Exception('返回429')
@@ -46,13 +62,24 @@ def parse_csv(i):
             'tag_list': [tag_list],
             'rating': [rating]
         })
-        with lock:
-            df.to_csv('./sankaku数据.csv', encoding='utf-8', mode='a', index=False, header=False)
-            print(i, '存入成功')
+        # 存入csv
+        # with lock:
+        #     saveToCsv(df, i)
+        # 存入数据库
+        saveToDb(img_id, tag_list, rating, i)
+
     except Exception as e:
         print(i, e, 'WTF')
+        raise
 
 
-for i in range(74):
-    with ThreadPoolExecutor(max_workers=32) as excutor:
-        excutor.map(parse_csv, [i for i in range(100000 * i, 100000 * (i+1))])
+db = pymysql.connect('127.0.0.1', 'yxy', 'test', 'mydb')
+cursor = db.cursor()
+
+with open('./sankaku数据.csv', 'w') as f:
+    f.write('img_id,tag_list,rating\n')
+for i in range(7472):
+    with ThreadPoolExecutor(max_workers=16) as excutor:
+        excutor.map(parse_csv, [i for i in range(1000 * i, 1000 * (i+1))])
+
+db.close()
