@@ -23,6 +23,7 @@ def saveToCsv(df, i):
 
 def saveToDb(img_id, tag_list, rating, i):
     sql = 'insert into sankaku(img_id,tag_list,rating) values(%s,%s,%s)'
+    print((img_id, tag_list, rating))
     try:
         cursor.execute(sql, (img_id, tag_list, rating))
         db.commit()
@@ -46,7 +47,7 @@ def parse_csv(i):
             "http": ip,
             'https': ip
         }
-
+        print(proxies)
         r = requests.get(url, headers=header, proxies=proxies, timeout=9)
 
         if r.status_code == 429:
@@ -55,18 +56,19 @@ def parse_csv(i):
         tag_list = etree.HTML(r.content).xpath("//ul[@id='tag-sidebar']/li/a/text()")
         tag_list = str(tag_list)
         rating = etree.HTML(r.content).xpath("//div[@id='stats']/ul/li[last()]/text()")
-        rating = rating[0].split(':')[-1]
+        rating = rating[0].split(':')[-1].strip()
 
         df = pd.DataFrame({
             'img_id': [img_id],
             'tag_list': [tag_list],
             'rating': [rating]
         })
-        # 存入csv
-        # with lock:
+        
+        with lock:
+        	# 存入csv
         #     saveToCsv(df, i)
-        # 存入数据库
-        saveToDb(img_id, tag_list, rating, i)
+        	# 存入数据库
+        	saveToDb(img_id, tag_list, rating, i)
 
     except Exception as e:
         print(i, e, 'WTF')
