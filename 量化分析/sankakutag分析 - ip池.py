@@ -54,7 +54,7 @@ def parse_csv(i):
             raise Exception('返回429')
 
         tag_list = etree.HTML(r.content).xpath("//ul[@id='tag-sidebar']/li/a/text()")
-        tag_list = str(tag_list)
+        tag_list = ' '.join(tag_list)
         rating = etree.HTML(r.content).xpath("//div[@id='stats']/ul/li[last()]/text()")
         rating = rating[0].split(':')[-1].strip()
 
