@@ -1,11 +1,20 @@
-from concurrent.futures import ThreadPoolExecutor
+import requests
+from lxml import etree
 
+# r = requests.get("https://gelbooru.com/index.php?page=post&s=view&id=4578487")
+# html = etree.HTML(r.text)
 
-def fun1(i):
-    print(i)
+# with open('./test.html','w') as f:
+#     f.write(r.text)
 
+# print(
+#     html.xpath("//ul[@id='tag-list']/div/li[contains(text(),'Rating')]/text()")
+# )
 
-with ThreadPoolExecutor(16) as executor:
-    for i in range(3000000):
-        executor.submit(fun1,i)
+with open('./test.html','r') as f:
+    page_data = f.read()
+
+print(
+    etree.HTML(page_data).xpath("//img/@alt")
+)
 
