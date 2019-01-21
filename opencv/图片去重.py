@@ -80,5 +80,5 @@ if __name__ == '__main__':
     folder_list = os.listdir(base_dir)
     for i in folder_list:
         folder_path = os.path.join(base_dir,i)
-        pder = Pic_Dumplicator(folder_path,ans_rate=8000)  # ans_rate：默认教学片700，电影8000
+        pder = Pic_Dumplicator(folder_path,ans_rate=2000)  # ans_rate：默认教学片2000，电影8000
         pder.run()
