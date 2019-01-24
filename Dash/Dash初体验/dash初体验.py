@@ -3,6 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 app = dash.Dash(__name__)
+app.scripts.config.serve_locally = False
 
 app.layout = html.Div([
     html.H1('Hello Dash',id='header1'),
@@ -19,8 +20,9 @@ app.layout = html.Div([
                 'title': 'Dash Data Visualization'
             }
         }
-    )
+    ),
+    html.Img(src='/assets/image.jpg')
 ])
 
 if __name__ == '__main__':
-    app.run_server(port=33567, debug=True)
+    app.run_server(port=16543, debug=True)
