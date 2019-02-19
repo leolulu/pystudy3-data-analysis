@@ -46,4 +46,4 @@ def transfrom(n_clicks, value):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False, port=3344)
+    app.run_server(debug=False, port=3344, host='0.0.0.0')
