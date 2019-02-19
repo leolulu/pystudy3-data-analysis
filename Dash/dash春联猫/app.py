@@ -10,7 +10,7 @@ app = dash.Dash(__name__)
 app.layout = html.Div([
     html.Div(
         dcc.Input(
-            placeholder='请输入待转换的句子...',
+            placeholder='请直接输入待转换的句子...',
             type='text',
             value='',
             id='input1',
@@ -18,7 +18,7 @@ app.layout = html.Div([
         )
     ),
     html.Div(
-        html.Button('转换', id='transfrom')
+        html.Button('转换', id='transfrom', disabled=True)
     ),
     html.Div(
         dcc.Textarea(
@@ -30,16 +30,27 @@ app.layout = html.Div([
 ])
 
 
+# @app.callback(
+#     dash.dependencies.Output('p1', 'value'),
+#     [
+#         dash.dependencies.Input('transfrom', 'n_clicks')
+#     ],
+#     [
+#         dash.dependencies.State('input1', 'value')
+#     ]
+# )
+# def transfrom(n_clicks, value):
+#     result = generator(value)
+#     timeprint(request.remote_addr, '\n', value, '\n', request.user_agent, '\n')
+#     return result
+
 @app.callback(
     dash.dependencies.Output('p1', 'value'),
     [
-        dash.dependencies.Input('transfrom', 'n_clicks')
-    ],
-    [
-        dash.dependencies.State('input1', 'value')
+        dash.dependencies.Input('input1', 'value')
     ]
 )
-def transfrom(n_clicks, value):
+def transfrom(value):
     result = generator(value)
     timeprint(request.remote_addr, '\n', value, '\n', request.user_agent, '\n')
     return result
