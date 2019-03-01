@@ -22,8 +22,8 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
-*.csv
 *.jpg
 
 /data
 *.sqlite
+数据分析项目实战/Amazon Food Reviews/amazon-fine-food-reviews/Reviews.csv
