@@ -1,0 +1,18 @@
+#textarea1 {
+    margin: 10px auto;
+    width: 90%;
+    height: 500px;
+    font-family: '微软雅黑';
+    font-size: 0.9em;
+}
+
+#p1 {
+    margin-left: 50px;
+    color: green;
+    font-family: '微软雅黑';
+    font-size: 2em;
+}
+
+#button_save {
+    margin: 0 20px;
+}

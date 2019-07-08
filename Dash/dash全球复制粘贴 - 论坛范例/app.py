@@ -6,31 +6,30 @@ from time import sleep
 
 app = dash.Dash(__name__)
 
-the_value = ''
+notepad_value = ''
 
+with open('./database/records.txt', 'r', encoding='utf-8') as f:
+	notepad_value = f.read()
 
-def getLayout():
-    global the_value
-    try:
-        with open('./database/records.txt', 'r', encoding='utf-8') as f:
-            the_value = f.read()
-            print('start_value:' + the_value)
-    except Exception as e:
-        print('发生错误：' + e)
-        the_value = '默认初始值...'
+notepad_value = ''
 
+def get_layout():
+    global notepad_value
+    with open('./database/records.txt', 'r', encoding='utf-8') as f:
+        notepad_value = f.read()
+    
     return html.Div([
         html.Div([
-            html.Button('保存', id='button_save'),
-            html.Button('提取', id='button_load')
+            html.Button('save', id='button_save'),
+            html.Button('load', id='button_load')
         ]),
-        html.Div(dcc.Textarea(value=the_value, id='textarea1')),
+        html.Div(dcc.Textarea(value=notepad_value, id='textarea1')),
         html.P(id='p1')
     ])
 
-app.layout = getLayout()
-total_modify_num = 0
+app.layout = get_layout
 
+total_modify_num = 0
 
 @app.callback(
     dash.dependencies.Output('p1', 'children'),
@@ -42,13 +41,10 @@ total_modify_num = 0
     ]
 )
 def infoSave(n_clicks, value):
-    global the_value
-    the_value = value
-    print('infoSave内部的value：{}'.format(value))
-    print('infoSave内部的the_value：{}'.format(the_value))
+    global notepad_value
+    notepad_value = value
     global total_modify_num
     total_modify_num += 1
-    sleep(5)
     with open('./database/records.txt', 'w', encoding='utf-8') as f:
         f.write(value)
     return total_modify_num
@@ -61,13 +57,10 @@ def infoSave(n_clicks, value):
     ]
 )
 def infoLoad(n_clicks):
-    global the_value
+    global notepad_value
     with open('./database/records.txt', 'r', encoding='utf-8') as f:
-        the_value = f.read()
-    print('从文件读取了参数，参数值为：{}'.format(the_value))
-    sleep(2)
-    return the_value
-
+        notepad_value = f.read()
+    return notepad_value
 
 if __name__ == '__main__':
     app.run_server(debug=True)

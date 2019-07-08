@@ -1,0 +1,17 @@
+#input1 {
+    margin: 50px 0 0 50px;
+    height: 150%;
+    font-family: '微软雅黑';
+    font-size: 2em;
+}
+
+#p1 {
+    margin: 0 0 0 50px;
+    color: green;
+    font-family: '微软雅黑';
+    font-size: 2em;
+}
+
+#reflush{
+    margin: 10px 50px;
+}
